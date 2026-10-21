@@ -1,1 +1,29 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>BOTC Night Helper</title><link rel="stylesheet" href="style.css"></head><body><main id="app"><div class="loading">불러오는 중…</div></main><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script><script src="config.js"></script><script src="app.js"></script></body></html>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>BOTC Night Helper</title><link rel="stylesheet" href="style.css?v=58732"><link rel="stylesheet" href="theme-assets/village-v30/theme.css?v=58732"></head><body><main id="app"><div class="loading">불러오는 중…</div></main><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script><script src="config.js"></script><script src="grimoire.js?v=58732"></script><script src="vote.js?v=58732"></script><script src="scripts-ko.js?v=58732"></script><script src="app.js?v=58732"></script><div id="appVersion" aria-label="앱 버전">RC5.8.7.32</div><script>/* RC5.8.7.32: check deployed HTML only while on home; never reload an active game. */
+(function(){
+  var checking=false, current=58732;
+  async function checkVersion(){
+    if(checking || !document.querySelector('.homeScene'))return;
+    checking=true;
+    try{
+      var url=new URL(location.href);
+      url.searchParams.set('_version_check',String(Date.now()));
+      var response=await fetch(url.toString(),{cache:'no-store'});
+      if(!response.ok)return;
+      var html=await response.text();
+      var match=html.match(/id=["']appVersion["'][^>]*>RC5\.8\.7\.(\d+)/);
+      if(!match)return;
+      var latest=58700+Number(match[1]);
+      if(latest>current && document.querySelector('.homeScene')){
+        var target=new URL(location.href);
+        target.searchParams.delete('_version_check');
+        target.searchParams.set('_app_version',String(latest));
+        location.replace(target.toString());
+      }
+    }catch(e){/* Offline: keep working normally. */}
+    finally{checking=false;}
+  }
+  window.addEventListener('pageshow',function(){setTimeout(checkVersion,1200);});
+  window.addEventListener('focus',checkVersion);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)checkVersion();});
+  setInterval(checkVersion,60000);
+})();</script><script src="theme-assets/village-v30/theme.js?v=58732"></script></body></html>

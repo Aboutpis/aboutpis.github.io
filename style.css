@@ -51,3 +51,135 @@ main{padding:12px 10px 34px}.card{border-radius:12px;padding:11px;margin:8px 0}.
 .homeTower{position:absolute;left:12%;top:25%;height:73%;width:39%;max-width:210px;background:linear-gradient(90deg,#11101a,#272034 45%,#100f18);clip-path:polygon(0 18%,50% 0,100% 18%,92% 18%,92% 100%,8% 100%,8% 18%);filter:drop-shadow(8px 3px 5px #000)}.homeClock{position:absolute;left:50%;top:25%;transform:translateX(-50%);width:86px;height:86px;border:6px solid #b88d65;border-radius:50%;background:radial-gradient(circle,#f3dcac,#7e634c);box-shadow:0 0 20px #eab36b44,inset 0 0 0 3px #3a2932}.homeClock:after{content:"";position:absolute;width:8px;height:8px;background:#2b1c27;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}.homeHand{position:absolute;left:50%;bottom:50%;background:#2b1c27;transform-origin:bottom}.homeHand.hour{width:4px;height:23px;transform:rotate(40deg)}.homeHand.minute{width:3px;height:31px;transform:rotate(210deg)}.homeWindows{position:absolute;top:57%;left:48%;color:#f4b56b;text-shadow:0 0 15px #ff9d43;font-size:36px}.homeTitle{text-align:center;position:relative;text-shadow:0 3px 14px #000}.homeEyebrow{font-size:10px;letter-spacing:3px;color:#f2b2aa;font-weight:900}.homeTitle h1{font-size:clamp(25px,7vw,36px);margin:12px 0 8px;color:#f7e6d5}.homeTitle p{font-size:13px;color:#d7c5cb;margin:0 0 25px}.homeActions{display:grid;gap:10px;position:relative}.homeActions button{padding:15px;font-size:15px;border:1px solid #aa5b78;background:linear-gradient(120deg,#a13e61,#6b305d)}.homeActions button.secondary{border-color:#55506a;background:#262538}.homeFoot{position:relative;text-align:center;margin-top:21px;color:#978c9d;font-size:10px;letter-spacing:.5px}
 .nightMode{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#222738;padding:4px;border-radius:10px;margin:8px 0}.nightMode button{background:transparent;color:#a8aec3;padding:8px 4px;font-size:12px}.nightMode button.active{background:#6554b4;color:#fff;box-shadow:0 2px 8px #0005}.nightSummary{font-size:11px;color:#aeb7cc;margin:0 0 9px}.nightSelected{background:linear-gradient(110deg,#263854,#1a253b);border-color:#6484c8;box-shadow:inset 3px 0 #a5bfff}.nightInactive{opacity:.38;filter:saturate(.5)}.nightPicked{font-size:10px;color:#a9d3ff;margin-left:7px;white-space:nowrap}.nightSelected .nightNum{background:#6484c8}.nightInactive .nightNum{background:#404557}
 @media(max-height:650px){.homeScene{min-height:580px}}@media(max-width:380px){.homeClock{width:66px;height:66px}.homeTitle h1{font-size:25px}}
+/* RC5.8 role allocation */
+.setupRoleRow{padding:11px 0;border-bottom:1px solid var(--line)}.setupRoleRow:last-child{border:0}.setupRoleRow>b{display:block;font-size:13px;margin-bottom:7px}.setupPair{display:grid;grid-template-columns:1fr 1fr;gap:8px}.setupPair select{font-size:12px;padding:9px 4px}.setupMode{display:grid;grid-template-columns:1fr;gap:7px;margin-top:10px}.setupManual{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:12px}.drawGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:16px}.drawGrid button{min-height:72px}.secretRole{background:#0a0b10!important;border-color:#34303d!important;color:#c7c0d0;max-width:480px;margin:20px auto!important;padding:22px!important}.secretRole .phase{color:#ddd1de}.secretToken{width:115px;height:115px;object-fit:contain;border-radius:50%;display:block;margin:20px auto 14px;filter:brightness(.8)}.secretTokenPlaceholder{font-size:64px;margin:20px auto}.secretAbility{font-size:13px;line-height:1.65;color:#a7a0af;white-space:pre-wrap;word-break:keep-all}.secretRole button{margin-top:14px}
+
+.setupAbility{margin-top:8px;line-height:1.5;white-space:pre-wrap}
+
+/* RC5.8.5: allocation composition and participant confirmation */
+.setupSummary{margin:10px 0 13px;padding:14px 11px;border:1px solid #50546b;border-radius:13px;background:linear-gradient(145deg,#202535,#171b28)}
+.setupSummaryHead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:11px}.setupSummaryHead b{font-size:15px}.setupSummaryHead span{font-size:11px;color:#c4c7d8;white-space:nowrap}
+.setupTeamGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.setupTeamCount{display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 2px 9px;border:1px solid #46506a;border-radius:10px;background:#222b40}.setupTeamCount span{font-size:12px;color:#d8e1fa;font-weight:700}.setupTeamCount strong{font-size:28px;line-height:1.2;color:#7cb8ff}.setupTeamCount.team-outsider strong{color:#90d5ff}.setupTeamCount.team-minion{background:#382630;border-color:#785260}.setupTeamCount.team-demon{background:#40232b;border-color:#965260}.setupTeamCount.team-minion strong,.setupTeamCount.team-demon strong{color:#ff8d91}.setupSummaryHint{margin-top:9px;color:#e9c78d;font-size:11px}
+.setupAckCount{margin:10px 0 5px;padding:9px 11px;border-radius:9px;background:#222b3b;color:#dce8ff;font-size:13px;font-weight:800}.setupAckState{font-size:12px;color:#e7bf7c;margin-top:5px}.setupAckState.confirmed{color:#86e2b0}.setupAckButton{display:block;width:100%;margin-top:12px!important;background:#30694f!important;border:1px solid #70c79a!important;color:#fff!important}.setupAckDone{margin-top:12px;color:#85e0ae;font-size:12px;font-weight:700}
+
+/* RC5.8.6 */
+.offlineName{color:#ef5350!important;font-weight:700!important}.setupPickBtn{width:100%;text-align:left;min-height:42px}.setupChoice{display:flex;width:100%;gap:10px;align-items:flex-start;text-align:left;padding:12px 10px;border:0;border-bottom:1px solid #5554;background:transparent;color:inherit;border-radius:0}.setupChoice b{flex:0 0 84px;font-size:14px}.setupChoice span{flex:1;min-width:0;font-size:11px;line-height:1.5;opacity:.78;white-space:normal}.setupChoiceGroup{font-size:12px;font-weight:700;opacity:.7;padding:12px 8px 4px}.drawQueueLine{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:12px}.drawQueuePerson{font-size:12px;padding:5px 7px;background:#ffffff12;border-radius:6px}.drawCurrent{background:#8b9fb94d;outline:2px solid #b4c4e4;font-weight:800}.drawMine{border-bottom:2px solid #92c5ff}.drawArrow{font-size:11px;opacity:.55}.drawCountdown{font-size:23px}.drawAdmin{margin-top:20px;text-align:right;font-size:11px;opacity:.75}.drawAdmin button{margin-top:10px;font-size:12px}.drawTurnPanel .row{align-items:center}
+/* RC5.8.7 ST grimoire */
+.grimOpenBtn{width:100%;margin:10px 0}.grimRoleIcon{width:40px;height:40px;object-fit:contain}#grimOverlay{position:fixed;z-index:10000;inset:0;background:#10121a;color:#f4f2ed;overflow:auto;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);display:flex;flex-direction:column;gap:10px}.grimHead,.grimTools{display:flex;align-items:center;justify-content:space-between;gap:8px}.grimHead{padding:12px 2px 0;font-size:20px}.grimHead small{font-size:12px;color:#c6b99a}.grimTools{font-size:12px;color:#bbb}.grimTools select{background:#292e3b;color:white;border:1px solid #60667a;border-radius:8px;padding:6px}.grimBoard{position:relative;flex:1 0 auto;height:min(66vh,620px);min-height:330px;border:2px solid #715839;border-radius:14px;background:radial-gradient(ellipse at center,#51402e,#292219 75%);box-shadow:inset 0 0 60px #0008;overflow:hidden;touch-action:none}.grimPawn{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;min-width:60px;max-width:100px;touch-action:none;user-select:none;cursor:grab;font-size:12px;text-shadow:0 1px 3px black}.grimPawn.selected .grimCircle{outline:3px solid #79aaff}.grimPawn.dead{filter:grayscale(.85);opacity:.68}.grimCircle{width:53px;height:53px;border-radius:50%;background:#171923;border:3px solid #b68c45;display:flex;align-items:center;justify-content:center;overflow:hidden}.grimCircle img{max-width:100%;max-height:100%}.grimBadges{font-size:10px;text-align:center;display:flex;flex-wrap:wrap;gap:2px;justify-content:center}.grimBadges span{border:1px solid #a9a3a0;border-radius:5px;padding:1px 3px;background:#222e;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.grimEditor{border:1px solid #3b4052;background:#1b1e2a;border-radius:12px;padding:12px;min-height:84px}.grimEditor button{font-size:12px;padding:8px}.grimStates,.grimTokenList{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}.grimStates .grimActive{background:#55468c}.grimTokenTitle{font-size:12px;color:#b7b6c5}.grimEditor .row{display:flex;align-items:center;justify-content:space-between}
+
+#grimOverlay~.pickerOverlay,.pickerOverlay{z-index:10010}.secretRole .setupAckButton{margin-top:28px!important}.secretRole button.secondary{margin-bottom:14px}
+
+/* RC5.8.7.2: large screen left Q&A, right grimoire */
+@media(min-width:1000px) and (orientation:landscape){body{padding-right:60.5vw!important}#app{max-width:none!important;width:100%!important}#grimSplitDock{position:fixed;z-index:90;right:0;top:0;bottom:0;width:60%;background:#10121a;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:10px;border-left:2px solid #685236}#grimSplitDock .grimBoard{flex:1 0 auto;min-height:420px;height:55vh}#app .grimOpenBtn{display:none}}
+.grimPawn.ghostSpent{filter:grayscale(1) brightness(.35);opacity:.72}.grimPawn.dead:not(.ghostSpent){filter:grayscale(.8) brightness(.7);opacity:.9}.grimPawn.dead:not(.ghostSpent) .grimCircle{border-color:#e3c37a}.grimPawn.ghostSpent .grimCircle{border-color:#555}.grimExtraRoles{position:absolute;top:-9px;right:-7px;display:flex;gap:2px;pointer-events:none}.grimExtra{width:24px;height:24px;border-radius:50%;border:2px solid #e0bd7e;background:#171923;display:flex;align-items:center;justify-content:center;overflow:hidden}.grimExtraIcon{width:20px;height:20px;object-fit:contain}.grimStates button{flex:1 1 125px}.secretRole .setupAckButton{margin-top:36px!important}.secretRole button.secondary{margin-bottom:20px}
+
+/* RC5.8.7.3: clearer grimoire pawns; keep life-state shading on the image, not the rim */
+.grimPawn{min-width:90px;max-width:118px;gap:1px;z-index:1}
+.grimPawn.selected{z-index:5}
+.grimCircle{width:64px;height:64px;flex-shrink:0}
+.grimRoleIcon{width:53px;height:53px}
+.grimPawn.dead:not(.ghostSpent),.grimPawn.ghostSpent{filter:none;opacity:1}
+.grimPawn.dead:not(.ghostSpent) .grimCircle{border-color:#b68c45}
+.grimPawn.dead:not(.ghostSpent) .grimCircle img{filter:grayscale(1);opacity:.72}
+.grimPawn.ghostSpent .grimCircle img{filter:grayscale(1) brightness(.4);opacity:.8}
+.grimPlayerName{font-size:12px;line-height:1.15;max-width:108px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grimRoleName{font-size:10px;line-height:1.1;color:#e5d4b9;display:block;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grimBadges{max-width:110px;line-height:1.1}
+.grimBadges span{max-width:90px;font-size:9px}
+.grimExtraRoles{top:-9px;right:-15px;gap:3px;z-index:2}
+.grimExtra{width:31px;height:31px}
+.grimExtraIcon{width:26px;height:26px}
+/* On large landscape night screens show all three working surfaces side by side. */
+@media(min-width:1000px) and (orientation:landscape){
+ body:has(#nightDrawer){padding-right:69vw!important}
+ body:has(#nightDrawer) #grimSplitDock{right:27%;width:42%;}
+ body:has(#nightDrawer) #nightDrawer{position:fixed;display:flex;flex-direction:column;transform:none!important;right:0;top:0;bottom:0;width:27%;z-index:91;box-shadow:none;border-left:2px solid #685236;padding:12px;transition:none}
+ body:has(#nightDrawer) #nightDrawer .nightList{flex:1;overflow:auto;align-content:start}
+ body:has(#nightDrawer) #nightDrawer .drawerHead button{display:none}
+ body:has(#nightDrawer) .nightTab,body:has(#nightDrawer) .nightShade{display:none!important}
+ body:has(#nightDrawer) #grimSplitDock .grimBoard{min-height:350px}
+}
+
+/* RC5.8.7.4: strict phase-scoped desktop layout. Mobile rules above unchanged. */
+@media(min-width:1000px) and (orientation:landscape){
+ body:not(.grim-night-layout):not(.grim-day-layout){padding-right:0!important}
+ body:not(.grim-night-layout):not(.grim-day-layout) #app{max-width:900px!important;width:100%!important;margin-inline:auto!important}
+ body:not(.grim-night-layout):not(.grim-day-layout) #grimSplitDock{display:none!important}
+ body.grim-night-layout{padding-right:69vw!important}
+ body.grim-day-layout{padding-right:60.5vw!important}
+ body.grim-night-layout #app,body.grim-day-layout #app{max-width:none!important;width:100%!important}
+ body.grim-night-layout #grimSplitDock{right:27%!important;width:42%!important}
+ body.grim-day-layout #grimSplitDock{right:0!important;width:60%!important}
+ body.grim-night-layout #nightDrawer{position:fixed;display:flex;flex-direction:column;transform:none!important;right:0;top:0;bottom:0;width:27%;z-index:91;box-shadow:none;border-left:2px solid #685236;padding:12px;transition:none}
+ body.grim-night-layout #nightDrawer .nightList{flex:1;overflow:auto;align-content:start}
+ body.grim-night-layout #nightDrawer .drawerHead button{display:none}
+ body.grim-night-layout .nightTab,body.grim-night-layout .nightShade{display:none!important}
+}
+.grimLockBtn{white-space:nowrap;flex-shrink:0;padding:7px 9px;font-size:12px}
+.grimTools{flex-wrap:wrap}
+.grimTools label{display:flex;align-items:center;gap:5px}
+
+/* RC5.8.7.5: end-of-game reveal and mobile grimoire lock visibility */
+.endReveal{margin:20px 0;padding:16px;border:1px solid #76613e;border-radius:14px;background:#191b26;text-align:left}
+.endReveal h3{text-align:center;margin:0 0 14px;color:#f5d796}
+.endRevealRow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 6px;border-bottom:1px solid #373a47;font-size:16px}
+.endRevealRow:last-child{border-bottom:0}.endRevealRow span{color:#f4d18c;text-align:right}
+#grimOverlay .grimTools .grimLockBtn{display:inline-flex!important;visibility:visible!important;opacity:1!important;min-height:40px;align-items:center;justify-content:center}
+@media(max-width:550px){#grimOverlay .grimTools{display:grid;grid-template-columns:1fr auto;gap:8px}#grimOverlay .grimTools>span{grid-column:1/-1}#grimOverlay .grimTools .grimLockBtn{grid-column:1;grid-row:2}#grimOverlay .grimTools label{grid-column:2;grid-row:2}}
+/* RC5.8.7.6: inset perimeter grimoire and full-screen role-free vote clock */
+.grimGridVisual{position:absolute;inset:17%;display:grid;grid-template-columns:repeat(var(--grim-n),1fr);grid-template-rows:repeat(var(--grim-n),1fr);pointer-events:none;opacity:.28}
+.grimGridVisual span{border:1px solid #c9a77377}
+.grimGridVisual .grimGridCenter{background:#14121ac4;border-color:#332b25}
+.grimClockCore{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;display:flex;align-items:center;flex-direction:column;gap:3px;color:#d8b979;opacity:.75;font-size:26px}
+.grimClockCore small{font-size:10px}
+.grimBoard .grimPawn{z-index:2}
+.voteScreen{max-width:780px;margin:0 auto;padding:15px 4px 30px;text-align:center}
+.voteHeading{font-size:25px;font-weight:900;color:#f4d595;margin-bottom:8px}
+.voteNominee{font-size:19px;margin-bottom:14px}
+.voteClockFace{position:relative;width:min(88vw,440px);height:min(88vw,440px);margin:0 auto 12px;border-radius:50%;border:4px solid #b78b4d;background:radial-gradient(circle,#272c3a 0%,#151922 72%);box-shadow:0 0 35px #0009,inset 0 0 35px #0009}
+.voteClockFace:after{content:'';position:absolute;left:50%;top:50%;width:15px;height:15px;transform:translate(-50%,-50%);border-radius:50%;background:#ff6969;z-index:5}
+.voteClockHand{position:absolute;left:50%;top:50%;width:7px;height:34%;background:linear-gradient(#ff4c4c,#d69a7d);border-radius:8px;transform-origin:50% 100%;transform:translateX(-50%) rotate(0rad);z-index:2;box-shadow:0 0 8px #ff4545a8;pointer-events:none}
+.voteClockCenter{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;border-radius:50%;background:#121722;border:2px solid #d5b479;width:64px;height:64px;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:30px;font-weight:900;line-height:1;color:#fff;pointer-events:none}
+.voteClockCenter small{font-size:10px;margin-top:4px;color:#e5c38d}
+.voteClockName{position:absolute;transform:translate(-50%,-50%);max-width:25%;min-width:46px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#222d3e;border:2px solid #6e7b8c;color:white;border-radius:11px;padding:7px 3px;font-size:clamp(11px,3vw,17px);font-weight:800;z-index:4;box-shadow:0 3px 7px #0009}
+.voteClockName.voteClockActive{background:#74551f;border:3px solid #ffe090;box-shadow:0 0 14px #e6b45a;color:#fff}
+.voteCurrentName{font-size:20px;font-weight:800;margin:14px 0;color:#ffe2a4}
+.voteLiveVotes{margin:12px 0;padding:12px;border:1px solid #5c6074;border-radius:12px;background:#202536;text-align:left}
+.voteLiveVotes b{font-size:20px;color:#ffdb96}.voteLiveVotes div{margin-top:7px;font-size:14px;color:#dbe2ef}
+.voteAgree,.voteStartButton{width:100%;min-height:58px;font-size:20px;font-weight:900;background:#386b51;border:1px solid #76d1a0;color:white}
+.voteAgree:disabled{opacity:.48}.voteAckCount{color:#dfc58e;font-size:15px}.voteResult{margin:40px auto 25px;padding:28px 10px;border:2px solid #9b804e;border-radius:18px;font-size:23px}.voteResult strong{display:block;font-size:38px;margin-top:12px;color:#ffe09b}
+.voteDayCard h3{font-size:16px;margin:16px 0 9px}.voteHistoryRow{display:flex;justify-content:space-between;padding:10px;border-top:1px solid #3b3d4b}.voteHistoryRow strong{color:#f6d68d}
+@media(max-width:420px){.voteClockName{min-width:38px;padding:5px 2px}.voteClockCenter{width:53px;height:53px;font-size:25px}.voteClockHand{width:5px}}
+@media(min-width:1000px) and (orientation:landscape){body:has(#voteScreen){padding-right:0!important}body:has(#voteScreen) #app{max-width:900px!important;width:100%!important;margin-inline:auto!important}}
+
+/* RC5.8.7.7 persistent room controls; accessible over grimoire and vote screens */
+#roomEscapeBar[hidden]{display:none!important}
+#roomEscapeBar{position:fixed;right:max(10px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));z-index:2147483000;pointer-events:none}
+#roomEscapeBar button{pointer-events:auto;width:auto;min-height:42px;padding:9px 14px;border-radius:24px;font-size:14px;font-weight:800;box-shadow:0 5px 20px #000b;border:1px solid #d39c9c;background:#55262b;color:white}
+#roomEscapeBar .escapeLeave{background:#26394d;border-color:#7391b1}
+body:has(#roomEscapeBar:not([hidden])) #app{padding-bottom:65px}
+
+/* RC5.8.7.8: top-of-page participant exit, never floating */
+#roomEscapeBar{display:none!important}.playerExitTop{display:flex;justify-content:flex-end;margin:0 0 10px}.playerExitTop button{font-size:13px}.voteEndTop{display:flex;justify-content:flex-end;margin-bottom:10px}.voteSeatYes,.voteSeatNo{position:absolute;right:-7px;top:-13px;font-size:25px;line-height:1;font-weight:1000;text-shadow:0 2px 4px black}.voteSeatYes{color:#4bf3a0}.voteSeatNo{color:#ff6767}.voteClockName{overflow:visible;white-space:normal;word-break:break-word}.voteClockCenter{font-size:23px}
+
+.buildBadge{display:inline-block;margin:4px 0 10px;padding:5px 9px;border-radius:8px;background:#292445;color:#c7baff;font-size:12px;font-weight:800}
+
+/* RC5.8.7.11: continuously rotating execution-vote hand */
+.voteClockHand{transition:transform 180ms linear;}
+
+#appVersion{position:fixed;bottom:6px;left:8px;font-size:11px;color:#aaa;opacity:.8;z-index:9999;pointer-events:none;background:#111a;padding:2px 5px;border-radius:4px}.voteError{color:#ff9999;font-weight:700}
+
+/* RC5.8.7.13: clock hand pivots from center and points at the first seat (12 o’clock). */
+.voteClockHand{top:16%;height:34%;transform-origin:50% 100%;transition:transform 180ms linear;}
+#appVersion{position:fixed;left:12px;top:calc(env(safe-area-inset-top, 0px) + 8px);bottom:auto;z-index:9999;background:#30264d;color:#d8c8ff;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:800;pointer-events:none;}
+
+/* RC5.8.7.15: unobtrusive version label at page bottom, never floating. */
+#appVersion{position:static!important;display:block!important;width:max-content;margin:12px auto 16px!important;padding:0!important;background:transparent!important;box-shadow:none!important;border:0!important;color:#888!important;opacity:.45!important;font-size:10px!important;pointer-events:none!important;}
+
+/* RC5.8.7.16: keep the player exit and script back button visibly separated. */
+.playerExitTop{margin-bottom:24px!important;}
+.playerExitTop+.top{margin-top:6px;}
+@media(max-width:520px){.playerExitTop{margin-bottom:28px!important;}}
+
+/* RC5.8.7.18: version visible on both voting screens for cross-device cache diagnosis. */
+.voteBuild{font-size:10px;font-weight:400;color:#a6a4b1;opacity:.65;white-space:nowrap;}
