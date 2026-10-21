@@ -184,8 +184,8 @@ body:has(#roomEscapeBar:not([hidden])) #app{padding-bottom:65px}
 /* RC5.8.7.18: version visible on both voting screens for cross-device cache diagnosis. */
 .voteBuild{font-size:10px;font-weight:400;color:#a6a4b1;opacity:.65;white-space:nowrap;}
 
-@font-face{font-family:TowerEmoji;src:url("assets/04e5ab200a6b29aebd.otf")}
-@font-face{font-family:TowerSerif;src:url("assets/a0ef22614bfbcaa453.otf")}@font-face{font-family:TowerSans;src:url("assets/888b053ceb35cce4cc.otf")}
+@font-face{font-family:TowerEmoji;src:url("assets/04e5ab200a6b29aebd.otf");font-display:swap;}
+@font-face{font-family:TowerSerif;src:url("assets/a0ef22614bfbcaa453.otf");font-display:swap;}@font-face{font-family:TowerSans;src:url("assets/888b053ceb35cce4cc.otf");font-display:swap;}
 :root{font-family:TowerSans,TowerEmoji,sans-serif;--card:#111b26;--line:#5c574c;--muted:#b3bec9;--accent:#cad9e6;--danger:#a76169;--ok:#95c9b3;color:#eeeae0;background:#080f17;color-scheme:dark}
 html{min-height:100%;background:#080f17}body{font-family:TowerSans,TowerEmoji,sans-serif;background:transparent;line-height:1.55;min-height:100svh;isolation:isolate;padding-right:0!important}body:before{content:'';position:fixed;inset:0;z-index:-2;background:#080f17 none center top/auto max(100svh,720px) no-repeat;pointer-events:none}body:after{content:'';position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#04090f18,#050b1490 58%,#050b14d9);pointer-events:none}
 #app{max-width:630px!important;width:100%!important;padding:24px 18px 38px!important;margin:auto!important;min-height:calc(100svh - 40px)}
@@ -790,13 +790,13 @@ html body[data-screen^='vote'] #app .voteClockHand{width:29px!important;top:16%!
   font-style: normal;
   font-weight: 400;
   src: url("assets/34b897327bd7c5d263.woff2") format('truetype');
-}
+font-display:swap;}
 @font-face {
   font-family: CompositionSans;
   font-style: normal;
   font-weight: 600;
   src: url("assets/e523b8b1803a0bd4b6.woff2") format('truetype');
-}
+font-display:swap;}
 /* Public base setup reference only. No actual secret role totals appear here. */
 html body[data-screen] #app .composition-reference{background:linear-gradient(155deg,#142330f5,#0c1722f5)!important;border:1px solid #5b7181!important;border-radius:6px!important;color:#e3eaf0!important;box-shadow:0 3px 12px #0004!important;padding:8px 7px!important;flex:0 0 auto;min-width:0;max-width:100%;font-family:CompositionSans,TowerEmoji,sans-serif!important;order:9}
 .composition-reference .composition-head{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:5px;font-size:12px;line-height:1.4}
@@ -837,13 +837,13 @@ html body[data-screen].has-player-reference #app #playerMain>.card{margin-bottom
   font-style: normal;
   font-weight: 400;
   src: url("assets/b94b59a3270670092b.woff2") format('truetype');
-}
+font-display:swap;}
 @font-face {
   font-family: ReferenceSans;
   font-style: normal;
   font-weight: 600;
   src: url("assets/84d309062db428f65b.woff2") format('truetype');
-}
+font-display:swap;}
 
 html body[data-screen] #app .composition-reference,html body[data-screen] #app .composition-reference *{font-family:ReferenceSans,TowerSans,sans-serif!important}
 

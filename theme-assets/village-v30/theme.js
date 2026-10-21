@@ -1,4 +1,4 @@
-/* RC32 visual layer. Reads rendered state; never writes to Firebase or changes game controls. */
+/* RC36 visual layer. Reads rendered state; never writes to Firebase or changes game controls. */
 (() => {
   'use strict';
   const root = document.getElementById('app');
@@ -11,6 +11,42 @@
     ['악마',[1,1,1,1,1,1,1,1,1,1,1]]
   ];
   const disclaimer = '시나리오 특별규칙 및 역할 능력에 따라 구성이 달라질 수 있습니다.';
+  // Warm only the next likely scenes, one low-priority request at a time.
+  // A missing/slow asset never delays a game screen or a database event.
+  const cssLink = document.querySelector('link[href*="village-v30/theme.css"]');
+  const assetBase = new URL('assets/', cssLink?.href || document.baseURI);
+  const warmSeen = new Set(), warmQueue = [];
+  let warming=false, warmScheduled=false, lastWarmPlan='';
+  function warmPump(){
+    warmScheduled=false;
+    if(warming||!warmQueue.length)return;
+    warming=true;
+    const img=new Image();img.decoding='async';img.fetchPriority='low';
+    let done=false;
+    const finish=()=>{if(done)return;done=true;img.onload=img.onerror=null;clearTimeout(timeout);warming=false;scheduleWarm();};
+    const timeout=setTimeout(finish,15000);
+    img.onload=img.onerror=finish;img.src=warmQueue.shift();
+  }
+  function scheduleWarm(){
+    if(warmScheduled||warming||!warmQueue.length)return;
+    warmScheduled=true;
+    if(window.requestIdleCallback)requestIdleCallback(warmPump,{timeout:1500});else setTimeout(warmPump,100);
+  }
+  function warmScenes(key,participant){
+    const landscape=matchMedia('(orientation: landscape)').matches;
+    const plan=key+':'+participant+':'+landscape;
+    if(plan===lastWarmPlan)return;
+    lastWarmPlan=plan;
+    const night=participant?(landscape?'e2e9c2299348057d36.webp':'ad81214ab3f362a7f7.png'):'b897c6ae713e698a0d.webp';
+    const day=landscape?'57a5dc96121b508c43.webp':'8c112b6472057badcc.png';
+    const vote=landscape?'7a00a3828a72209207.webp':'015da0bb6df03bad11.png';
+    let files=[];
+    if(['lobby','lobby_empty','playerlobby'].includes(key)||key.startsWith('setup_')||key.startsWith('prep_')||key.startsWith('draw_')||key.startsWith('role'))files=['201607c4fb7af0d90c.webp','0f2eac49d2b79c812a.webp',night,day,vote];
+    else if(['wait','question','dummy','stnight','day','stday'].includes(key))files=[day,vote,night];
+    if(files.length)files.push('79332378e32684a022.svg','51cc338740a1d83590.svg');
+    for(const file of files){const url=new URL(file,assetBase).href;if(!warmSeen.has(url)){warmSeen.add(url);warmQueue.push(url);}}
+    scheduleWarm();
+  }
   function state() {
     const meta = typeof currentMeta === 'undefined' ? null : currentMeta;
     const storyteller = typeof isST !== 'undefined' && isST;
@@ -60,6 +96,7 @@
   }
   function sync() {
     const [key,participant,meta] = state();
+    warmScenes(key,participant);
     if (document.body.dataset.screen !== key) document.body.dataset.screen=key;
     if (document.body.dataset.participant !== String(participant)) document.body.dataset.participant=String(participant);
     const playerRef = participant && ['wait','question','dummy','day'].includes(key);
@@ -91,5 +128,5 @@
   new MutationObserver(requestSync).observe(root,{childList:true,subtree:true});
   // Labels and layout are read-only. No listeners are added to game action buttons.
   sync();
-  window.BOTC_THEME = Object.freeze({version:'RC5.8.7.32',refresh:requestSync});
+  window.BOTC_THEME = Object.freeze({version:'RC5.8.7.36',refresh:requestSync});
 })();
