@@ -243,6 +243,14 @@ function stHistoryHtml(){
 }
 
 let nightOrderMode='all', nightDrawerOpened=false;
+function nightInstructionHtml(character,key){
+ const guide=String(character?.[key+'Reminder']||'').trim();
+ const ability=String(character?.ability||'').trim();
+ const kind=guide?'night':ability?'ability':'missing';
+ const label=kind==='ability'?'<span class="nightGuideLabel">능력 설명</span><br>':'';
+ const text=guide||ability||'밤 안내와 능력 설명이 등록되지 않았습니다.';
+ return `<div class="small muted nightGuide" data-guide-kind="${kind}" style="white-space:pre-wrap;overflow-wrap:anywhere">${label}${esc(text)}</div>`;
+}
 function nightOrderHtml(m){
   const data=Array.isArray(window._scriptData)?window._scriptData:[];
   const key=(m.nightNumber||1)===1?'firstNight':'otherNight';
@@ -251,7 +259,7 @@ function nightOrderHtml(m){
   const all=data.filter(x=>x&&x.id!=='_meta'&&Number(x[key])>0).sort((a,b)=>Number(a[key])-Number(b[key]));
   const items=nightOrderMode==='selected'?all.filter(x=>assigned.has(String(x.id||x.name).toLowerCase())):all;
   const count=all.filter(x=>assigned.has(String(x.id||x.name).toLowerCase())).length;
-  return `<button class="nightTab" onclick="toggleNightDrawer(true)">🌙<span>순서</span></button><div id="nightShade" class="nightShade${nightDrawerOpened?' open':''}" onclick="toggleNightDrawer(false)"></div><aside id="nightDrawer" class="nightDrawer${nightDrawerOpened?' open':''}"><div class="drawerHead"><b>🌙 ${title}</b><button class="secondary" onclick="toggleNightDrawer(false)">✕</button></div><div class="nightMode"><button class="${nightOrderMode==='all'?'active':''}" onclick="setNightOrderMode('all')">전체 역할</button><button class="${nightOrderMode==='selected'?'active':''}" onclick="setNightOrderMode('selected')">선택된 역할만</button></div><div class="nightSummary">현재 배정된 역할 ${count}종 · 역할 변경 시 자동 반영</div><div class="nightList">${items.map(x=>{const selected=assigned.has(String(x.id||x.name).toLowerCase());const pos=all.indexOf(x)+1;return `<div class="nightItem ${selected?'nightSelected':'nightInactive'}"><span class="nightNum">${pos}</span>${roleIconHtml(x.name||charId(x),'nightIcon')}<div><b>${esc(x.name||x.id)}</b>${selected?'<span class="nightPicked">● 배정됨</span>':''}<div class="small muted">${esc(x[key+'Reminder']||'')}</div></div></div>`}).join('')||'<div class="muted">해당 밤에 표시할 역할이 없습니다.</div>'}</div></aside>`;
+  return `<button class="nightTab" onclick="toggleNightDrawer(true)">🌙<span>순서</span></button><div id="nightShade" class="nightShade${nightDrawerOpened?' open':''}" onclick="toggleNightDrawer(false)"></div><aside id="nightDrawer" class="nightDrawer${nightDrawerOpened?' open':''}"><div class="drawerHead"><b>🌙 ${title}</b><button class="secondary" onclick="toggleNightDrawer(false)">✕</button></div><div class="nightMode"><button class="${nightOrderMode==='all'?'active':''}" onclick="setNightOrderMode('all')">전체 역할</button><button class="${nightOrderMode==='selected'?'active':''}" onclick="setNightOrderMode('selected')">선택된 역할만</button></div><div class="nightSummary">현재 배정된 역할 ${count}종 · 역할 변경 시 자동 반영</div><div class="nightList">${items.map(x=>{const selected=assigned.has(String(x.id||x.name).toLowerCase());const pos=all.indexOf(x)+1;return `<div class="nightItem ${selected?'nightSelected':'nightInactive'}"><span class="nightNum">${pos}</span>${roleIconHtml(x.name||charId(x),'nightIcon')}<div><b>${esc(x.name||x.id)}</b>${selected?'<span class="nightPicked">● 배정됨</span>':''}${nightInstructionHtml(x,key)}</div></div>`}).join('')||'<div class="muted">해당 밤에 표시할 역할이 없습니다.</div>'}</div></aside>`;
 }
 function toggleNightDrawer(open){nightDrawerOpened=!!open;document.querySelector('#nightDrawer')?.classList.toggle('open',nightDrawerOpened);document.querySelector('#nightShade')?.classList.toggle('open',nightDrawerOpened)}
 function setNightOrderMode(mode){nightOrderMode=mode==='selected'?'selected':'all';if(currentMeta&&isST&&currentMeta.phase==='NIGHT'){const el=document.querySelector('#nightDrawer');if(el){const next=document.createElement('div');next.innerHTML=nightOrderHtml(currentMeta);const newer=next.querySelector('#nightDrawer');el.replaceWith(newer);document.querySelectorAll('.nightTab,.nightShade').forEach(e=>e.remove());const tab=next.querySelector('.nightTab'),shade=next.querySelector('.nightShade');document.querySelector('#app').prepend(shade);document.querySelector('#app').prepend(tab);}}}
