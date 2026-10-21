@@ -1,10 +1,9 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyCaguVIqRweRTW6Crya0Q9o0e1_Fj1BcX8",
-  authDomain: "botc-night.firebaseapp.com",
-  databaseURL: "https://botc-night-default-rtdb.firebaseio.com",
-  projectId: "botc-night",
-  storageBucket: "botc-night.firebasestorage.app",
-  messagingSenderId: "915675713930",
-  appId: "1:915675713930:web:e2d6412de333fa87ddb873",
-  measurementId: "G-02CGQM9WV1"
+  "apiKey": "AIzaSyAD8pIp90NHuYygB8G4Uz3iFGHFfST0ZQ8",
+  "authDomain": "botc-b16fe.firebaseapp.com",
+  "databaseURL": "https://botc-b16fe-default-rtdb.asia-southeast1.firebasedatabase.app",
+  "projectId": "botc-b16fe",
+  "storageBucket": "botc-b16fe.firebasestorage.app",
+  "messagingSenderId": "858903200381",
+  "appId": "1:858903200381:web:5af5cabcb554aac1ad6714"
 };
