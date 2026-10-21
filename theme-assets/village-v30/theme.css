@@ -898,3 +898,9 @@ html body[data-screen] #app .scriptCharacterText :is(b,.small){display:block;max
 
 /* New scenario names use the complete Korean role-label font. */
 html body[data-screen] #app :is(.scriptbox h2,.scriptchar b,.secretRole .phase){font-family:TowerSans,TowerEmoji,sans-serif!important}
+
+/* RC34: opaque night-order panel and sticky title; no content shows through. */
+html body[data-screen] #nightDrawer{background:#0d1a28!important;background-image:none!important}
+html body[data-screen] #nightDrawer>.drawerHead{position:sticky!important;top:0!important;z-index:30!important;background:#0d1a28!important;background-image:none!important;opacity:1!important;backdrop-filter:none!important;isolation:isolate;border-bottom:1px solid #52697d!important;padding:10px 0!important;margin-bottom:10px!important;box-shadow:0 -24px 0 #0d1a28,0 6px 0 #0d1a28!important}
+html body[data-screen] #nightDrawer>.drawerHead>b{flex:1;min-width:0;line-height:1.5!important;overflow-wrap:anywhere}
+html body[data-screen] #nightDrawer>.drawerHead>button{flex:0 0 auto}
