@@ -254,7 +254,7 @@ function nightInstructionHtml(character,key){
 function nightOrderHtml(m){
   const data=Array.isArray(window._scriptData)?window._scriptData:[];
   const key=(m.nightNumber||1)===1?'firstNight':'otherNight';
-  const title=(m.nightNumber||1)===1?'첫 번째 밤 순서':'밤 순서';
+  const title=(m.nightNumber||1)===1?'첫 번째 밤 순서':'매일 밤 순서';
   const assigned=new Set(Object.values(window._roles||{}).map(r=>{const c=charByRole(r);return c?String(c.id||c.name).toLowerCase():String(r||'').trim().toLowerCase()}).filter(Boolean));
   const all=data.filter(x=>x&&x.id!=='_meta'&&Number(x[key])>0).sort((a,b)=>Number(a[key])-Number(b[key]));
   const items=nightOrderMode==='selected'?all.filter(x=>assigned.has(String(x.id||x.name).toLowerCase())):all;
