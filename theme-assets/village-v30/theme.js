@@ -60,7 +60,7 @@
       const ackKey = storyteller ? 'ST' : (typeof uid === 'undefined' ? '' : uid);
       const acked = typeof voteAcks !== 'undefined' && voteAcks[ackKey] === true;
       const now = Date.now() + (window._serverOffset || 0);
-      const key = vote?.stage === 'RESULT' ? (acked?'vote_ack':'vote_result')
+      const key = ['READY','SCHEDULED'].includes(vote?.stage) ? 'vote_prepare' : vote?.stage === 'RESULT' ? (acked?'vote_ack':'vote_result')
         : now - Number(vote?.startedAt || now) < 5000 ? 'vote_prepare'
         : (vote?.order?.length || 0) >= 15 ? 'vote_many' : 'vote';
       return [key,!storyteller,meta];
@@ -128,5 +128,5 @@
   new MutationObserver(requestSync).observe(root,{childList:true,subtree:true});
   // Labels and layout are read-only. No listeners are added to game action buttons.
   sync();
-  window.BOTC_THEME = Object.freeze({version:'RC5.8.7.36',refresh:requestSync});
+  window.BOTC_THEME = Object.freeze({version:'RC5.8.7.38',refresh:requestSync});
 })();

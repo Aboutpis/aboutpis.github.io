@@ -904,3 +904,12 @@ html body[data-screen] #nightDrawer{background:#0d1a28!important;background-imag
 html body[data-screen] #nightDrawer>.drawerHead{position:sticky!important;top:0!important;z-index:30!important;background:#0d1a28!important;background-image:none!important;opacity:1!important;backdrop-filter:none!important;isolation:isolate;border-bottom:1px solid #52697d!important;padding:10px 0!important;margin-bottom:10px!important;box-shadow:0 -24px 0 #0d1a28,0 6px 0 #0d1a28!important}
 html body[data-screen] #nightDrawer>.drawerHead>b{flex:1;min-width:0;line-height:1.5!important;overflow-wrap:anywhere}
 html body[data-screen] #nightDrawer>.drawerHead>button{flex:0 0 auto}
+
+/* RC38: visible home attribution and compact synchronized vote readiness. */
+html body[data-screen="home"] #appVersion{display:none!important}
+html body[data-screen="home"] .homeFoot{font:12px/1.6 TowerSans,sans-serif!important;color:#eee3d1!important;opacity:1!important;text-shadow:0 1px 4px #000!important;letter-spacing:0!important}
+.voteReadyPanel{text-align:center;padding:14px 12px;background:#0c141cec;border:1px solid #64717a;border-radius:5px;margin-top:12px}
+.voteReadyCount{font-size:19px;color:#f0e1c9;margin:5px 0}.voteMissing{font-size:13px;line-height:1.6;color:#ced4d5;overflow-wrap:anywhere;margin:8px 0}
+.voteReadyMessage{font-size:18px;line-height:1.7;color:#f0e1c9;margin:12px 0}
+.voteReadyButton{width:100%;min-height:50px}.voteForceButton{margin-top:12px;width:100%}
+.voteReadyPanel button:disabled{opacity:.7}.voteScheduleNote{color:#c8d2d7;font-size:13px}
