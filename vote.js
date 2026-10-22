@@ -14,6 +14,7 @@ function votePath(v=voteCurrent){return `rooms/${room}/public/vote/sessions/${v.
 function voteMissingReady(v=voteCurrent){return (v.order||[]).filter(p=>voteReady[p.uid]!==true)}
 function voteMissingSchedule(v=voteCurrent){return (v.order||[]).filter(p=>voteScheduleAcks[p.uid]!==v.scheduleToken)}
 function voteStartListeners(){
+ voteSurfaceErrorId='';voteSurfaceLoadMs=0;voteCountPaintKey='';voteCountPaintMs=null;
  voteDropLiveListeners();voteListenerRetryAt=0;voteGeneration++;voteCurrent=null;voteBallots={};voteAcks={};voteReady={};voteScheduleAcks={};voteStartAcks={};voteHistory={};voteMyRight=false;
  voteTickBusy=false;voteSessionId='';voteRenderedId='';voteRenderedStage='';voteSurfaceId='';voteSurfacePreparing='';voteLocalYesId='';voteLocalYesPending=false;voteSubmitting=false;voteAckSubmitting=false;voteReadySubmitting=false;voteScheduleAckKey='';voteScheduleAckBusy=false;voteControlAfter=0;voteRefreshBusy=false;
  voteRoomStarted=true;voteEnsureListeners();
@@ -47,7 +48,7 @@ function voteDropLiveListeners(){voteLiveOffs.forEach(off=>off());voteLiveOffs=[
 function voteListenSession(){
  const id=voteCurrent?.id||'';if(id===voteSessionId)return;
  if(voteSessionOff)voteSessionOff();voteSessionOff=null;voteSessionId=id;
- voteBallots={};voteAcks={};voteReady={};voteScheduleAcks={};voteStartAcks={};voteSubmitting=false;voteAckSubmitting=false;voteSurfaceId='';voteReadySubmitting=false;voteScheduleAckKey='';voteLocalYesId='';voteLocalYesPending=false;
+ voteSurfaceErrorId='';voteSurfaceLoadMs=0;voteCountPaintKey='';voteCountPaintMs=null;voteBallots={};voteAcks={};voteReady={};voteScheduleAcks={};voteStartAcks={};voteSubmitting=false;voteAckSubmitting=false;voteSurfaceId='';voteReadySubmitting=false;voteScheduleAckKey='';voteLocalYesId='';voteLocalYesPending=false;
  if(!id)return;
  const watchRoom=room,g=voteGeneration,ref=db.ref(votePath());
  const cb=s=>{if(g!==voteGeneration||room!==watchRoom||voteCurrent?.id!==id)return;const x=s.val()||{};voteBallots=x.ballots||{};voteAcks=x.acks||{};voteReady=x.ready||{};voteScheduleAcks=x.scheduleAcks||{};voteStartAcks=x.startAcks||{};voteUpdateLive();};
@@ -62,15 +63,77 @@ function voteLoop(){
  if(isST)voteSTTick();
 }
 function voteSyncScreen(){voteLoop()}
+// The clock is not ready until its actual CSS images decode and a paint frame passes.
+const voteAssetPromises=new Map();
+let voteSurfaceErrorId='',voteSurfaceLoadMs=0,voteCountPaintKey='',voteCountPaintMs=null;
+function voteLoadAsset(url){
+ if(voteAssetPromises.has(url))return voteAssetPromises.get(url);
+ const promise=new Promise((resolve,reject)=>{
+  const img=new Image();img.decoding='async';img.fetchPriority='high';let finished=false;
+  const finish=error=>{if(finished)return;finished=true;clearTimeout(timer);img.onload=img.onerror=null;error?reject(error):resolve();};
+  const timer=setTimeout(()=>finish(Error('clock image timeout')),15000);
+  img.onerror=()=>finish(Error('clock image unavailable'));
+  img.onload=()=>{if(img.decode)img.decode().then(()=>finish(),()=>finish(img.naturalWidth?null:Error('clock image decode failed')));else finish();};
+  img.src=url;
+ });
+ voteAssetPromises.set(url,promise);
+ promise.catch(()=>{if(voteAssetPromises.get(url)===promise)voteAssetPromises.delete(url)});
+ return promise;
+}
+function voteClockAssetUrls(){
+ const urls=new Set();
+ for(const selector of ['.voteClockFace','#voteClockHand']){
+  const el=document.querySelector(selector);if(!el)continue;
+  const css=getComputedStyle(el).backgroundImage;
+  for(const match of css.matchAll(/url\(["']?([^"')]+)["']?\)/g))urls.add(match[1]);
+ }
+ return [...urls];
+}
 function votePrepareSurface(){
- const id=voteCurrent?.id;if(!id||voteSurfaceId===id||voteSurfacePreparing===id||document.hidden)return;
- voteSurfacePreparing=id;const g=voteGeneration,watchRoom=room;
- requestAnimationFrame(()=>requestAnimationFrame(()=>{
-  if(g!==voteGeneration||room!==watchRoom||voteCurrent?.id!==id){if(voteSurfacePreparing===id)voteSurfacePreparing='';return;}
-  voteSurfacePreparing='';if(document.hidden)return;
-  if(document.getElementById('voteClock')?.getBoundingClientRect().width>0){voteSurfaceId=id;voteUiKey='';voteUpdateLive();}
+ const id=voteCurrent?.id;if(!id||voteSurfaceId===id||voteSurfacePreparing===id||voteSurfaceErrorId===id||document.hidden)return;
+ voteSurfacePreparing=id;const g=voteGeneration,watchRoom=room,began=performance.now();
+ const same=()=>g===voteGeneration&&room===watchRoom&&voteCurrent?.id===id;
+ requestAnimationFrame(async()=>{
+  try{
+   if(!same())return;
+   await Promise.all(voteClockAssetUrls().map(voteLoadAsset));
+   if(!same())return;
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if(voteSurfacePreparing===id)voteSurfacePreparing='';
+    if(!same()||document.hidden)return;
+    if(document.getElementById('voteClock')?.getBoundingClientRect().width>0){
+     voteSurfaceId=id;voteSurfaceLoadMs=Math.round(performance.now()-began);
+     voteDiagnostic('surface',{loadMs:voteSurfaceLoadMs});voteUiKey='';voteUpdateLive();
+    }
+   }));
+  }catch(error){
+   if(voteSurfacePreparing===id)voteSurfacePreparing='';
+   if(same()){voteSurfaceErrorId=id;voteDiagnostic('surface-error',{});voteNotice('시계판 이미지를 불러오지 못했습니다. 연결 상태를 확인한 뒤 다시 불러오기를 눌러 주세요.');voteUpdateLive();}
+  }finally{if(!same()&&voteSurfacePreparing===id)voteSurfacePreparing='';}
+ });
+}
+function voteRetrySurface(){if(!voteCurrent)return;voteSurfaceErrorId='';voteSurfacePreparing='';voteNotice('');votePrepareSurface();voteUpdateLive();}
+function voteDiagnostic(event,extra={}){
+ const log=window.BOTC_VOTE_DIAGNOSTICS||(window.BOTC_VOTE_DIAGNOSTICS=[]);
+ log.push({event,role:isST?'ST':'player',stage:voteCurrent?.stage||'',serverEstimate:voteNow(),offsetMs:Math.round(window._serverOffset||0),...extra});
+ if(log.length>30)log.shift();
+}
+function voteMarkCountPaint(){
+ const v=voteCurrent;if(!v||v.stage!=='RUNNING'||voteNow()<v.startedAt)return;
+ const key=v.id+':'+v.scheduleToken;if(voteCountPaintKey===key)return;voteCountPaintKey=key;
+ voteCountPaintMs=Math.round(voteNow()-v.startedAt);voteDiagnostic('count-dom',{delayMs:voteCountPaintMs});
+ const g=voteGeneration;requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  if(g!==voteGeneration||voteCurrent?.id!==v.id||voteCurrent.scheduleToken!==v.scheduleToken)return;
+  voteCountPaintMs=Math.round(voteNow()-v.startedAt);voteDiagnostic('count-frame',{delayMs:voteCountPaintMs});voteUpdateDiagnostics();
  }));
 }
+function voteUpdateDiagnostics(){
+ const el=document.getElementById('voteSyncDiagnostics');if(!el)return;
+ const enabled=new URLSearchParams(location.search).get('diagnostics')==='1';el.hidden=!enabled;if(!enabled)return;
+ voteSetText(el,`${isST?'사회자':'참가자'} · 시계 준비 ${voteSurfaceId===voteCurrent?.id?voteSurfaceLoadMs+'ms':'확인 중'} · 카운트 표시 ${voteCountPaintMs===null?'대기':voteCountPaintMs+'ms 지연'} · 시각 보정 ${Math.round(window._serverOffset||0)}ms`);
+}
+Object.assign(window,{voteRetrySurface});
+
 async function voteSetReady(){
  const v=voteCurrent;if(isST||!v||v.stage!=='READY'||voteReadySubmitting||voteReady[uid]||voteSurfaceId!==v.id||!window._serverClockReady)return;
  const watchRoom=room,g=voteGeneration;voteReadySubmitting=true;voteUiKey='';voteUpdateLive();
@@ -90,7 +153,7 @@ function voteReadyHtml(v){
  const missing=voteMissingReady(v),done=v.order.length-missing.length,mine=voteReady[uid]===true;
  const scheduled=v.stage==='SCHEDULED',waiting=scheduled?voteMissingSchedule(v):missing;
  const canReady=voteSurfaceId===v.id&&window._serverClockReady;
- return `<div class="voteReadyPanel"><p class="voteReadyCount">준비 ${done}/${v.order.length}명</p><p class="voteMissing">${missing.length?'미준비: '+missing.map(p=>esc(p.name)).join(' · '):'전원 준비 완료'}</p>${!isST&&(mine||scheduled)?'<p class="voteReadyMessage">곧 투표가 시작합니다.<br>화면에 집중하세요.</p>':''}${!isST&&!scheduled?`<button class="voteReadyButton" onclick="voteSetReady()" ${mine||voteReadySubmitting||!canReady?'disabled':''}>${mine?'✓ 준비 완료 · 다른 참가자 대기 중':voteReadySubmitting?'준비 전송 중':canReady?'준비 완료':'화면·시간 동기화 중…'}</button>`:''}${scheduled?`<p class="voteScheduleNote">시작 시각 동기화 중${waiting.length?' · 수신 대기 '+waiting.map(p=>esc(p.name)).join(' · '):' · 시작 준비 완료'}</p>`:''}${v.readyNotice?`<p class="voteScheduleNote">${esc(v.readyNotice)}</p>`:''}${isST?'<button class="danger voteForceButton" onclick="voteForceStart()">강제 시작</button>':''}</div>`;
+ return `<div class="voteReadyPanel"><p class="voteReadyCount">준비 ${done}/${v.order.length}명</p><p class="voteMissing">${missing.length?'미준비: '+missing.map(p=>esc(p.name)).join(' · '):'전원 준비 완료'}</p>${!isST&&(mine||scheduled)?'<p class="voteReadyMessage">곧 투표가 시작합니다.<br>화면에 집중하세요.</p>':''}${!isST&&!scheduled?`<button class="voteReadyButton" onclick="voteSetReady()" ${mine||voteReadySubmitting||!canReady?'disabled':''}>${mine?'✓ 준비 완료 · 다른 참가자 대기 중':voteReadySubmitting?'준비 전송 중':canReady?'준비 완료':'화면·시간 동기화 중…'}</button>`:''}${scheduled?`<p class="voteScheduleNote">시작 시각 동기화 중${waiting.length?' · 수신 대기 '+waiting.map(p=>esc(p.name)).join(' · '):' · 시작 준비 완료'}</p>`:''}${v.readyNotice?`<p class="voteScheduleNote">${esc(v.readyNotice)}</p>`:''}${voteSurfaceErrorId===v.id?'<button class="secondary voteReadyButton" onclick="voteRetrySurface()">시계판 다시 불러오기</button>':''}${isST&&voteSurfaceId!==v.id?'<p class="voteScheduleNote">사회자 시계판 준비 중…</p>':''}${isST?`<button class="danger voteForceButton" onclick="voteForceStart()" ${voteSurfaceId!==v.id?'disabled':''}>강제 시작</button>`:''}</div>`;
 }
 async function voteForceStart(){
  const v=voteCurrent;if(!isST||!v||!['READY','SCHEDULED'].includes(v.stage))return;
@@ -99,7 +162,7 @@ async function voteForceStart(){
  if(v.stage==='SCHEDULED'){try{await db.ref(`rooms/${room}/public/vote/current`).transaction(x=>x?.id===v.id&&x.stage==='SCHEDULED'?{...x,forced:true}:undefined);}catch(e){voteNotice('강제 시작 실패: '+String(e.message||e));}}else await voteScheduleStart(true);
 }
 async function voteScheduleStart(forced=false){
- const v=voteCurrent;if(!isST||!v||v.stage!=='READY'||voteTickBusy||!window._serverClockReady||window._roomConnected!==true)return;
+ const v=voteCurrent;if(!isST||!v||v.stage!=='READY'||voteTickBusy||voteSurfaceId!==v.id||!window._serverClockReady||window._roomConnected!==true)return;
  if(!forced&&voteMissingReady(v).length)return;
  voteTickBusy=true;const watchRoom=room,g=voteGeneration;
  try{const ref=db.ref(`rooms/${watchRoom}/public/vote/current`);await ref.transaction(x=>{
@@ -163,7 +226,7 @@ function voteRender(){
  if(!voteIsActive())return;const v=voteCurrent;
  if(document.getElementById('voteScreen')&&voteRenderedId===v.id){voteRenderedStage=v.stage;voteUpdateLive();return;}
  voteRenderedId=v.id;voteRenderedStage=v.stage;voteUiKey='';
- h(`<div id="voteScreen" class="voteScreen">${isST?'<div class="voteEndTop"><button class="danger" onclick="endGame()">🔴 게임 종료</button></div>':''}<div class="voteHeading">🗳️ 처형 투표 <small class="voteBuild">RC5.8.7.39</small></div><div class="voteNominee">후보: <b>${esc(v.nomineeName)}</b></div>${voteClockHtml(v)}<div id="voteLive"></div><p id="voteNotice" class="card small" role="status" aria-live="polite" hidden></p></div>`);
+ h(`<div id="voteScreen" class="voteScreen">${isST?'<div class="voteEndTop"><button class="danger" onclick="endGame()">🔴 게임 종료</button></div>':''}<div class="voteHeading">🗳️ 처형 투표 <small class="voteBuild">RC5.8.7.40</small></div><div class="voteNominee">후보: <b>${esc(v.nomineeName)}</b></div>${voteClockHtml(v)}<div id="voteLive"></div><p id="voteSyncDiagnostics" class="small muted" hidden></p><p id="voteNotice" class="card small" role="status" aria-live="polite" hidden></p></div>`);
  votePrepareSurface();voteUpdateLive();
 }
 function voteSeatOrder(){const ps=grimPlayers();return ps.map((p,i)=>{const pos=grimPos(p.uid,i);return {uid:p.uid,name:p.name,x:pos.x,y:pos.y,angle:(Math.atan2(pos.x-.5,.5-pos.y)+Math.PI*2)%(Math.PI*2)}}).sort((a,b)=>a.angle-b.angle)}
@@ -193,7 +256,7 @@ function votePhaseInfo(v){
 function voteUpdateLive(){
  if(!voteIsActive())return;const v=voteCurrent,el=document.getElementById('voteLive');if(!el)return;
  if(voteSurfaceId!==v.id)votePrepareSurface();
- const info=votePhaseInfo(v),counter=document.getElementById('voteClockCenter'),label=document.getElementById('voteCurrentName'),hand=document.getElementById('voteClockHand');
+ voteUpdateDiagnostics();const info=votePhaseInfo(v),counter=document.getElementById('voteClockCenter'),label=document.getElementById('voteCurrentName'),hand=document.getElementById('voteClockHand');
  if(v.stage==='READY'||v.stage==='SCHEDULED'){
   voteSetHtml(el,voteReadyHtml(v));voteSetText(label,v.stage==='READY'?'참가자 준비 중':'시작 시각 맞추는 중');voteSetHtml(counter,'준비');if(hand)hand.style.transform='translateX(-50%) rotate(0rad)';
   voteAckSchedule();return;
@@ -203,7 +266,7 @@ function voteUpdateLive(){
   const done=['ST',...v.order.map(p=>p.uid)].filter(k=>voteAcks[k]===true).length,key=isST?'ST':uid,waiting=voteAckSubmitting&&voteAckPendingKey===key;
   voteSetHtml(el,`<p class="voteSummary">투표 종료 · 찬성 ${Number(v.count)||0}표 · 시계판에서 ✓ / ✕ 확인</p><button class="voteAgree" onclick="voteAcknowledge()" ${voteAcks[key]||waiting?'disabled':''}>${voteAcks[key]?'✓ 확인 완료 · 대기 중':waiting?'✓ 확인 전송 중':'✓ 확인 완료'}</button><p class="voteAckCount">확인 ${done} / ${v.order.length+1}명</p>`);return;
  }
- voteAckSchedule();
+ voteAckSchedule();voteMarkCountPaint();
  const names=v.order.filter(p=>voteBallots[p.uid]===true).map(p=>p.name),localYes=voteLocalYesId===v.id;
  const canVote=!isST&&info.index>=0&&v.order[info.index]?.uid===uid&&voteMyRight&&window._voteRightsId===v.id&&!voteBallots[uid]&&!localYes&&!info.ended;
  voteSetHtml(el,`<div class="voteLiveVotes"><b>👍 찬성 ${names.length}표</b><div>${names.length?names.map(esc).join(' · '):'아직 찬성한 사람이 없습니다.'}</div></div>${!isST?`<button class="voteAgree" id="voteYes" onclick="voteYes()" ${canVote&&!voteSubmitting?'':'disabled'}>${localYes&&voteLocalYesPending?'✓ 찬성 전송 중':voteBallots[uid]||localYes?'✓ 찬성 완료':canVote?'👍 찬성':'👍 찬성 (내 차례 대기)'}</button>`:''}`);
