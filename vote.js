@@ -1,4 +1,4 @@
-/* RC38: nomination-scoped readiness, scheduled start, local clock rendering. */
+/* RC39: defer participant vote subscriptions until PLAYING. RC38: nomination-scoped readiness, scheduled start, local clock rendering. */
 let voteCurrent=null,voteBallots={},voteAcks={},voteHistory={},voteMyRight=false;
 let voteReady={},voteScheduleAcks={},voteStartAcks={},voteSessionOff=null,voteSessionId='';
 let voteTickHandle=null,voteTickBusy=false,voteRenderedId='',voteRenderedStage='',voteUiKey='';
@@ -7,15 +7,31 @@ let voteAckSubmitting=false,voteAckPendingKey='',voteReadySubmitting=false;
 let voteSurfaceId='',voteSurfacePreparing='',voteScheduleAckKey='',voteScheduleAckBusy=false;
 let voteGeneration=0,voteRefreshBusy=false;
 let voteControlAfter=0;
+let voteRoomStarted=false,voteLiveBound=false,voteLiveOffs=[],voteListenerRetryAt=0;
 function voteNow(){return Date.now()+(window._serverOffset||0)}
 function voteIsActive(){return !!(voteCurrent&&voteCurrent.stage&&voteCurrent.stage!=='CLOSED'&&currentMeta?.phase==='DAY')}
 function votePath(v=voteCurrent){return `rooms/${room}/public/vote/sessions/${v.id}`}
 function voteMissingReady(v=voteCurrent){return (v.order||[]).filter(p=>voteReady[p.uid]!==true)}
 function voteMissingSchedule(v=voteCurrent){return (v.order||[]).filter(p=>voteScheduleAcks[p.uid]!==v.scheduleToken)}
 function voteStartListeners(){
- voteGeneration++;voteCurrent=null;voteBallots={};voteAcks={};voteReady={};voteScheduleAcks={};voteStartAcks={};voteHistory={};voteMyRight=false;
+ voteDropLiveListeners();voteListenerRetryAt=0;voteGeneration++;voteCurrent=null;voteBallots={};voteAcks={};voteReady={};voteScheduleAcks={};voteStartAcks={};voteHistory={};voteMyRight=false;
  voteTickBusy=false;voteSessionId='';voteRenderedId='';voteRenderedStage='';voteSurfaceId='';voteSurfacePreparing='';voteLocalYesId='';voteLocalYesPending=false;voteSubmitting=false;voteAckSubmitting=false;voteReadySubmitting=false;voteScheduleAckKey='';voteScheduleAckBusy=false;voteControlAfter=0;voteRefreshBusy=false;
- listen(db.ref(`rooms/${room}/public/vote/current`),'value',s=>{
+ voteRoomStarted=true;voteEnsureListeners();
+ voteTickHandle=setInterval(voteLoop,100);
+}
+function voteEnsureListeners(){
+ if(!voteRoomStarted||voteLiveBound||!room||currentMeta?.status!=='PLAYING'||Date.now()<voteListenerRetryAt)return;
+ voteLiveBound=true;const g=voteGeneration,watchRoom=room;
+ function subscribe(ref,callback){
+  const cb=s=>{if(g===voteGeneration&&room===watchRoom&&voteRoomStarted)callback(s)};
+  voteLiveOffs.push(()=>ref.off('value',cb));
+  ref.on('value',cb,error=>{
+   if(g!==voteGeneration||room!==watchRoom||!voteRoomStarted)return;
+   voteDropLiveListeners();voteListenerRetryAt=Date.now()+3000;
+   if(currentMeta?.status==='PLAYING')console.warn('vote subscription will reconnect',error);
+  });
+ }
+ subscribe(db.ref(`rooms/${room}/public/vote/current`),s=>{
   const before=voteIsActive();voteCurrent=s.val();
   voteListenSession();
   if(currentMeta?.phase==='DAY'){
@@ -24,10 +40,10 @@ function voteStartListeners(){
    else voteRefreshDay();
   }
  });
- listen(db.ref(`rooms/${room}/public/vote/history`),'value',s=>{voteHistory=s.val()||{};if(currentMeta?.phase==='DAY'&&!voteIsActive())voteRefreshDay()});
- if(!isST)listen(db.ref(`rooms/${room}/private/playerVoteRights/${uid}`),'value',s=>{const r=s.val();voteMyRight=r?.eligible===true;window._voteRightsId=r?.voteId||'';voteUpdateLive()});
- voteTickHandle=setInterval(voteLoop,100);
+ subscribe(db.ref(`rooms/${room}/public/vote/history`),s=>{voteHistory=s.val()||{};if(currentMeta?.phase==='DAY'&&!voteIsActive())voteRefreshDay()});
+ if(!isST)subscribe(db.ref(`rooms/${room}/private/playerVoteRights/${uid}`),s=>{const r=s.val();voteMyRight=r?.eligible===true;window._voteRightsId=r?.voteId||'';voteUpdateLive()});
 }
+function voteDropLiveListeners(){voteLiveOffs.forEach(off=>off());voteLiveOffs=[];voteLiveBound=false;}
 function voteListenSession(){
  const id=voteCurrent?.id||'';if(id===voteSessionId)return;
  if(voteSessionOff)voteSessionOff();voteSessionOff=null;voteSessionId=id;
@@ -38,8 +54,9 @@ function voteListenSession(){
  ref.on('value',cb,e=>{if(g===voteGeneration)voteNotice('투표 동기화 권한을 확인해 주세요. 38버전 Firebase 규칙 게시가 필요합니다.');console.warn('vote session',e)});
  voteSessionOff=()=>ref.off('value',cb);
 }
-function voteStopTimers(){voteGeneration++;if(voteTickHandle)clearInterval(voteTickHandle);voteTickHandle=null;if(voteSessionOff)voteSessionOff();voteSessionOff=null;voteTickBusy=false;voteSessionId='';voteRenderedId='';voteRenderedStage='';voteSurfaceId='';voteSurfacePreparing='';}
+function voteStopTimers(){voteRoomStarted=false;voteDropLiveListeners();voteGeneration++;if(voteTickHandle)clearInterval(voteTickHandle);voteTickHandle=null;if(voteSessionOff)voteSessionOff();voteSessionOff=null;voteTickBusy=false;voteSessionId='';voteRenderedId='';voteRenderedStage='';voteSurfaceId='';voteSurfacePreparing='';}
 function voteLoop(){
+ voteEnsureListeners();
  if(!voteIsActive())return;
  if(!document.hidden){if(!document.getElementById('voteScreen'))voteRender();else voteUpdateLive();}
  if(isST)voteSTTick();
@@ -146,7 +163,7 @@ function voteRender(){
  if(!voteIsActive())return;const v=voteCurrent;
  if(document.getElementById('voteScreen')&&voteRenderedId===v.id){voteRenderedStage=v.stage;voteUpdateLive();return;}
  voteRenderedId=v.id;voteRenderedStage=v.stage;voteUiKey='';
- h(`<div id="voteScreen" class="voteScreen">${isST?'<div class="voteEndTop"><button class="danger" onclick="endGame()">🔴 게임 종료</button></div>':''}<div class="voteHeading">🗳️ 처형 투표 <small class="voteBuild">RC5.8.7.38</small></div><div class="voteNominee">후보: <b>${esc(v.nomineeName)}</b></div>${voteClockHtml(v)}<div id="voteLive"></div><p id="voteNotice" class="card small" role="status" aria-live="polite" hidden></p></div>`);
+ h(`<div id="voteScreen" class="voteScreen">${isST?'<div class="voteEndTop"><button class="danger" onclick="endGame()">🔴 게임 종료</button></div>':''}<div class="voteHeading">🗳️ 처형 투표 <small class="voteBuild">RC5.8.7.39</small></div><div class="voteNominee">후보: <b>${esc(v.nomineeName)}</b></div>${voteClockHtml(v)}<div id="voteLive"></div><p id="voteNotice" class="card small" role="status" aria-live="polite" hidden></p></div>`);
  votePrepareSurface();voteUpdateLive();
 }
 function voteSeatOrder(){const ps=grimPlayers();return ps.map((p,i)=>{const pos=grimPos(p.uid,i);return {uid:p.uid,name:p.name,x:pos.x,y:pos.y,angle:(Math.atan2(pos.x-.5,.5-pos.y)+Math.PI*2)%(Math.PI*2)}}).sort((a,b)=>a.angle-b.angle)}
